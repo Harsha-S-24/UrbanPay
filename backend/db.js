@@ -31,11 +31,24 @@ const userSchema=mongoose.Schema({
         maxLength:50
     }
 
-
-
 });
+userSchema.methods.createHash = async function (plainTextPassword) {
 
-const User=mongoose.model('Users',userSchema);
+    const saltRounds = 10;
+  
+    const salt = await bcrypt.genSalt(saltRounds);
+    return await bcrypt.hash(plainTextPassword, salt);
+  
+    // Second mehtod - Or we can create salt and hash in a single method also
+    // return await bcrypt.hash(plainTextPassword, saltRounds);
+  };
+  
+  // Validating the candidate password with stored hash and hash function
+  userSchema.methods.validatePassword = async function (candidatePassword) {
+    return await bcrypt.compare(candidatePassword, this.password_hash);
+  };
+  
+const User=mongoose.model('User',userSchema);
 
 module.exports={
     User
