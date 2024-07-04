@@ -30,14 +30,15 @@ router.post("/signup",asyncHandler(async (req,res)=>{
             message:"Email Already Taken"
         })
     }
-    const hashedPassword= await newUser.createHash(req.body.password);
-    const newUser= await User.create({
+    const newUser= new User({
         username:req.body.username,
         firstName:req.body.firstName,
         lastName:req.body.lastName,
-        password_hash:hashedPassword
     });
+    const hashedPassword= await newUser.createHash(req.body.password);
     const userId=newUser._id;
+    newUser.password_hash=hashedPassword;
+    await newUser.save();
     const token=jwt.sign({
         userId
     },JWT_SECRET);
@@ -46,8 +47,19 @@ router.post("/signup",asyncHandler(async (req,res)=>{
         token:token
     })
 }));
+
+const signinBody=zod.object({
+    username:zod.string().email(),
+    password:zod.string(),
+})
 router.post('/signin',asyncHandler(async (req,res)=>{
-    let user= await User.findOne({email:req.body.email});
+    const {success} =signinBody.safeParse(req.body);
+    if(!success){
+        return res.json(411).json({
+            message:"Incorrect Inputs"
+        })
+    }
+    let user= await User.findOne({username:req.body.username});
     if(!user){
         return res.status(400).json({
             message:"User Not Found"
@@ -55,15 +67,23 @@ router.post('/signin',asyncHandler(async (req,res)=>{
     }
     else{
         if(await user.validatePassword(req.body.password)){
+            const token=jwt.sign({
+                userId:user._id},JWT_SECRET);
             return res.status(200).json({
-                message:"User Successfully Logged in"
+                message:"User Successfully Logged in",
+                token:token
             })
         }else{
             return res.status(400).json({
                 message:"Incorrect Password",
             })
+           
         }
 
+
     }
+    return res.status(411).json({
+        message:"Error while loggin in"
+    })
 }))
 module.exports=router;

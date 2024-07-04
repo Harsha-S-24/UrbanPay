@@ -3,9 +3,9 @@ const mainRouter=require("./routes/index")
 const app =express();
 const cors=require('cors');
 const PORT=3000;
-app.use("/api/v1",mainRouter);
 app.use(cors());
 app.use(express.json());//body parse to support JSON body in post requests
+app.use("/api/v1",mainRouter);
 // const corsOptions={
 //     origin:'http://example:5173',//will  allow only this origin
 //     methods:['POST'],
