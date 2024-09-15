@@ -1,3 +1,4 @@
+
 import {
   BrowserRouter,
   Route,
@@ -20,7 +21,6 @@ function App() {
         </Routes>
       </BrowserRouter>
     </>
-  )
-}
+
 
 export default App
