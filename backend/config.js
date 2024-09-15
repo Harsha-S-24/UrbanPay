@@ -1,3 +1,7 @@
-module.exports={
-    JWT_SECRET:"signature"
+ 
+//backend/config.js
+module.exports = {
+	JWT_SECRET: "your-jwt-secret"
+
+
 }
